@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After School Club</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!--Load Vue.js from a server (so no local file is needed)-->
+    <script src="products.js"></script>
+    <link rel="stylesheet" href="CSS.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div id="pagetitle">
+                <h1 v-text ="sitename" style="color: olivedrab;"></h1>
+            </div>
+
+            <h3 style="display: inline-block;" id="searchbox">Search:</h3>
+            <input type="text" v-model="searchQuery" placeholder="Search by subject or location" />
+
+            <button v-on:click="showCheckout" id="checkbutton">
+                {{cartItemCount}}
+                <!--add the cart icon-->
+                <!--<span class="fa-sharp fa-solid fa-cart-arrow-down fa-bounce"></span> Checkout-->
+                <span class="fa-solid fa-cart-arrow-down"></span> Checkout
+            </button>
+        </header>
+        <div>
+            <h3>Sort Options</h3>
+            
+            <label for="sortField">Sort By:</label>
+            <select id="sortField" v-model="selectedField">
+                <option value="price">Price</option>
+                <option value="subject">Subject</option>
+                <option value="Location">Location</option>
+                <option value="availableInventory">Spaces</option>
+                <option value="rating">Rating</option>
+            </select>
+            
+            <label for="sortOrder">Order:</label>
+            <select id="sortOrder" v-model="selectedOrder">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+            
+            <button v-on:click="sortByField(selectedField, selectedOrder)">Sort</button>
+
+        </div>
+        
+        <main>
+            <div v-if="showProduct">
+                <div class="productContainer">
+                    <div v-for="product in filteredProducts" class="product">
+                        <figure>
+                            <!-- bind 'src' attr to 'product.image' in 'data'-->
+                            <img v-bind:src="product.image">
+                        </figure>
+                        <h2 v-text="product.subject"></h2>
+                        <p v-html="product.Location"></p>
+                        <p v-html="product.description"></p>
+            
+                        <!-- The double curly brackets is used instead of 'v-text'-->
+                        <p>Price: {{product.price}}</p>
+                        
+                        <div>
+                            <span v-for="n in product.rating">★</span>
+                            <span v-for="n in 5 - product.rating">☆</span>
+                        </div>
+                        <br>
+        
+                        <button v-on:click="addToCart(product)" v-if="canAddToCart(product)">
+                            Add to cart
+                        </button>
+        
+                        <button disabled="disabled" v-else>
+                            Add to cart
+                        </button>
+        
+                        <span v-if="product.availableInventory === cartCount(product.id)" class="status" style="color: red;">All Out!</span>
+                        <span v-else-if="product.availableInventory - cartCount(product.id) < 5" class="status">
+                            Only {{product.availableInventory - cartCount(product.id)}} left!
+                        </span>
+                        <span v-else class="status">Buy now!</span>
+    
+    
+                        
+                    </div>
+                </div>
+                
+            </div>
+
+
+            <div v-else id="checkoutBG">
+                <h2 style="font-size: xx-large;">Checkout</h2>
+                <br>
+                <p>
+                    <strong> First Name:</strong>
+                    <input v-model="order.firstName"/>
+                </p>
+                <p>
+                    <strong>Last Name:</strong>
+                    <input v-model="order.lastName"/>
+                </p>
+                <p>
+                    <strong>Address:</strong>
+                    <input v-model="order.address"/>
+                </p>
+                <p>
+                    <strong>City:</strong>
+                    <input v-model="order.city"/>
+                </p>
+                <p>
+                    <strong>State:</strong>
+                    <select v-model="order.state">
+                        <option disabled value="">State</option>
+                        <option v-for="(state, key) in states" v-bind:value="state">
+                            {{key}}
+                        </option>
+                    </select>    
+                </p>
+
+                <p>
+                    <input type="radio" id="home" value="Home" v-model="order.method">
+                    <label for="home">Home</label>
+                    <input type="radio" id="business" value="Business" v-model="order.method">
+                    <label for="business">Business</label>
+                </p>
+
+                <p>
+                    <strong>Zip/Postal Code:</strong> <input v-model="order.zip"/>
+                </p>
+                <br>
+
+                <h2 style="font-size: x-large;">Order Information</h2>
+                <br>
+                <p>First Name: {{order.firstName}}</p>
+                <p>Last Name: {{order.lastName}}</p>
+                <p>Address: {{order.address}}</p>
+                <p>City: {{order.city}}</p>
+                <p>Zip: {{order.zip}}</p>
+                <p>State: {{order.state}}</p>
+                <p>Method: {{order.method}}</p>
+
+                <button v-on:click="submitForm">Place Order</button>
+            </div>
+
+
+        </main>
+    </div>
+
+    <!--<h1>Vue js Pet Depot</h1>-->
+
+    <script type="text/javascript">
+        var webstore = new Vue({ 
+            el:'#app', // The 'option object': DOM mounting point
+            data: {
+                showProduct: true,
+                order: {
+                    firstName:'',
+                    lastName:'',
+                    address:'',
+                    city:'',
+                    zip:'',
+                    state:'',
+                    method: 'Home'
+                },
+                states: {
+                    AL: 'Alabama',
+                    AR: 'Arizona',
+                    CA: 'California',
+                    NV: 'Nevada'
+                },
+                sitename: 'After School Club',
+                // product: {
+                //     id: 1001,
+                //     subject: "Mathematics",
+                //     description: "fun math class",
+                //     Location: " London",
+                //     price: 100,
+                //     image:"images/download.png",
+                //     availableInventory: 5
+                // },
+                products: products,
+                cart:[], //array to store items in shopping cart
+                selectedField: 'price', // default sort field
+                selectedOrder: 'asc',    // default sort order
+                searchQuery: ''     
+            },
+            methods:{
+                addToCart(product){
+                    this.cart.push(product.id)
+                },
+                showCheckout(){
+                    this.showProduct = this.showProduct ? false : true;
+                },
+                canAddToCart(product){
+                    return product.availableInventory > this.cartCount(product.id);
+                },
+                cartCount(id){
+                    let count = 0;
+                    for(let i = 0; i<this.cart.length; i++){
+                        if(this.cart[i] === id){
+                            count++;
+                        }
+                    }
+                    return count;
+                },
+                submitForm(){
+                    alert('Order Submitted!')
+                },
+                sortByField(field, order) {
+                    this.products.sort((a, b) => {
+                        let modifier = order === 'asc' ? 1 : -1;
+                        if (typeof a[field] === 'string') {
+                            return a[field].localeCompare(b[field]) * modifier;
+                        }
+                        return (a[field] - b[field]) * modifier;
+                    });
+                }
+            },
+            computed:{//the computed property object
+                cartItemCount(){
+                    return this.cart.length;
+                },
+                // canAddToCart: function(){
+                //     return this.product.availableInventory > this.cartItemCount;
+                // },
+                // itemsLeft(){
+                //     return this.product.availableInventory - this.cartItemCount;
+                // }
+                filteredProducts() {
+                    return this.products.filter(product => {
+                        const searchTerm = this.searchQuery.toLowerCase();
+                        return (
+                            product.subject.toLowerCase().includes(searchTerm) ||
+                            product.Location.toLowerCase().includes(searchTerm)
+                        );
+                    });
+                },
+            }
+        });
+
+    </script>
+</body>
+</html>
