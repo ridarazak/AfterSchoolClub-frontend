@@ -30,18 +30,17 @@
             </button>
         </header>
         <div>
-            <h3>Sort Options</h3>
+            <h3 style="color: beige;">Sort Options</h3>
             
-            <label for="sortField">Sort By:</label>
+            <label for="sortField" id="sort">Sort By:</label>
             <select id="sortField" v-model="selectedField">
                 <option value="price">Price</option>
                 <option value="subject">Subject</option>
                 <option value="Location">Location</option>
-                <option value="availableInventory">Spaces</option>
                 <option value="rating">Rating</option>
             </select>
             
-            <label for="sortOrder">Order:</label>
+            <label for="sortOrder" id="sort">Order:</label>
             <select id="sortOrder" v-model="selectedOrder">
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
@@ -97,53 +96,45 @@
             <div v-else id="checkoutBG">
                 <h2 style="font-size: xx-large;">Checkout</h2>
                 <br>
+
+                <h3>Your Cart</h3>
+                <div v-if="cart.length > 0" class="cartContainer">
+                    <div v-for="(product, index) in cartProducts" :key="product.id" class="cartProduct">
+                        <span><strong>{{ product.subject }};</strong> </span>
+                        <span>Price: {{ product.price }}</span>
+                        <button @click="removeFromCart(index)" style="background-color: red;">Remove</button>
+                    </div>
+                </div>
+                <div v-else>
+                    <p>Your cart is empty.</p>
+                </div>
+                <br>
+                <br>
+                
+                <h3>Your Details</h3>
                 <p>
-                    <strong> First Name:</strong>
-                    <input v-model="order.firstName"/>
+                    <strong>First Name:</strong>
+                    <input v-model="order.firstName" @input="validateName('firstName')" />
+                    <p v-if="errors.firstName" class="error" style="color: red;">{{ errors.firstName }}</p>
                 </p>
                 <p>
                     <strong>Last Name:</strong>
-                    <input v-model="order.lastName"/>
+                    <input v-model="order.lastName" @input="validateName('lastName')" />
+                    <p v-if="errors.lastName" class="error" style="color: red;">{{ errors.lastName }}</p>
                 </p>
                 <p>
-                    <strong>Address:</strong>
-                    <input v-model="order.address"/>
-                </p>
-                <p>
-                    <strong>City:</strong>
-                    <input v-model="order.city"/>
-                </p>
-                <p>
-                    <strong>State:</strong>
-                    <select v-model="order.state">
-                        <option disabled value="">State</option>
-                        <option v-for="(state, key) in states" v-bind:value="state">
-                            {{key}}
-                        </option>
-                    </select>    
+                    <strong>Phone Number:</strong>
+                    <input v-model="order.phone" @input="validatePhone()" />
+                    <p v-if="errors.phone" class="error" style="color: red;">{{ errors.phone }}</p>
                 </p>
 
-                <p>
-                    <input type="radio" id="home" value="Home" v-model="order.method">
-                    <label for="home">Home</label>
-                    <input type="radio" id="business" value="Business" v-model="order.method">
-                    <label for="business">Business</label>
-                </p>
-
-                <p>
-                    <strong>Zip/Postal Code:</strong> <input v-model="order.zip"/>
-                </p>
                 <br>
 
                 <h2 style="font-size: x-large;">Order Information</h2>
                 <br>
                 <p>First Name: {{order.firstName}}</p>
                 <p>Last Name: {{order.lastName}}</p>
-                <p>Address: {{order.address}}</p>
-                <p>City: {{order.city}}</p>
-                <p>Zip: {{order.zip}}</p>
-                <p>State: {{order.state}}</p>
-                <p>Method: {{order.method}}</p>
+                <p>Phone Number: {{order.phone}}</p>
 
                 <button v-on:click="submitForm">Place Order</button>
             </div>
@@ -152,7 +143,6 @@
         </main>
     </div>
 
-    <!--<h1>Vue js Pet Depot</h1>-->
 
     <script type="text/javascript">
         var webstore = new Vue({ 
@@ -162,33 +152,19 @@
                 order: {
                     firstName:'',
                     lastName:'',
-                    address:'',
-                    city:'',
-                    zip:'',
-                    state:'',
-                    method: 'Home'
-                },
-                states: {
-                    AL: 'Alabama',
-                    AR: 'Arizona',
-                    CA: 'California',
-                    NV: 'Nevada'
+                    phone:''
                 },
                 sitename: 'After School Club',
-                // product: {
-                //     id: 1001,
-                //     subject: "Mathematics",
-                //     description: "fun math class",
-                //     Location: " London",
-                //     price: 100,
-                //     image:"images/download.png",
-                //     availableInventory: 5
-                // },
                 products: products,
                 cart:[], //array to store items in shopping cart
                 selectedField: 'price', // default sort field
                 selectedOrder: 'asc',    // default sort order
-                searchQuery: ''     
+                searchQuery: '',
+                errors: { // Added to store error messages
+                    firstName: '',
+                    lastName: '',
+                    phone: ''
+                }     
             },
             methods:{
                 addToCart(product){
@@ -209,8 +185,37 @@
                     }
                     return count;
                 },
-                submitForm(){
-                    alert('Order Submitted!')
+                removeFromCart(index) {
+                    this.cart.splice(index, 1); // Remove the product from the cart based on index
+                },
+                validateName(field) {
+                    const value = this.order[field];
+                    const nameRegex = /^[a-zA-Z\s]*$/; // Only letters and spaces
+                    this.errors[field] = nameRegex.test(value) ? '' : 'Name must contain letters only.';
+                },
+                
+                validatePhone() {
+                    const value = this.order.phone;
+                    const phoneRegex = /^[0-9]*$/; // Only numbers
+                    this.errors.phone = phoneRegex.test(value) ? '' : 'Phone number must contain digits only.';
+                },
+                submitForm() {
+                    this.validateName('firstName');
+                    this.validateName('lastName');
+                    this.validatePhone();
+                    
+                    if (!this.errors.firstName && !this.errors.lastName && !this.errors.phone) {
+                        alert('Order Submitted!');
+                        this.resetForm();
+                    } else {
+                        alert('Please fix the errors before submitting.');
+                    }
+                },
+                resetForm() {
+                    this.order.firstName = '';
+                    this.order.lastName = '';
+                    this.order.phone = '';
+                    this.errors = { firstName: '', lastName: '', phone: '' }; // Reset errors
                 },
                 sortByField(field, order) {
                     this.products.sort((a, b) => {
@@ -226,12 +231,11 @@
                 cartItemCount(){
                     return this.cart.length;
                 },
-                // canAddToCart: function(){
-                //     return this.product.availableInventory > this.cartItemCount;
-                // },
-                // itemsLeft(){
-                //     return this.product.availableInventory - this.cartItemCount;
-                // }
+                cartProducts() {
+                    return this.cart.map(id => {
+                        return this.products.find(product => product.id === id);
+                    }).filter(product => product); // Filter out any undefined values
+                },
                 filteredProducts() {
                     return this.products.filter(product => {
                         const searchTerm = this.searchQuery.toLowerCase();

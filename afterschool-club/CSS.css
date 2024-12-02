@@ -32,6 +32,13 @@ header {
 
 #searchbox{
     margin-left: 40%;
+    color: beige;
+}
+
+#sort{
+    margin-left: 1%;
+    color: white;
+    font-weight: bold;
 }
 
 #checkbutton{
