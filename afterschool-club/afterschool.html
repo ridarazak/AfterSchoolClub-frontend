@@ -25,7 +25,6 @@
             <button v-on:click="showCheckout" id="checkbutton">
                 {{cartItemCount}}
                 <!--add the cart icon-->
-                <!--<span class="fa-sharp fa-solid fa-cart-arrow-down fa-bounce"></span> Checkout-->
                 <span class="fa-solid fa-cart-arrow-down"></span> Checkout
             </button>
         </header>
@@ -37,6 +36,7 @@
                 <option value="price">Price</option>
                 <option value="subject">Subject</option>
                 <option value="Location">Location</option>
+                <option value="spacesAvailable">Spaces Available</option>
                 <option value="rating">Rating</option>
             </select>
             
@@ -59,13 +59,13 @@
                             <img v-bind:src="product.image">
                         </figure>
                         <h2 v-text="product.subject"></h2>
-                        <p v-html="product.Location"></p>
-                        <p v-html="product.description"></p>
+                        <p>Location: {{ product.Location }}</p>
+
                         <p>Space: {{ product.availableInventory - cartCount(product.id) }}</p>
 
             
                         <!-- The double curly brackets is used instead of 'v-text'-->
-                        <p>Price: {{product.price}}</p>
+                        <p>Price (AED): {{product.price}}</p>
                         
                         <div>
                             <span>Rating:</span>
@@ -74,6 +74,12 @@
                         </div>
                         <br>
         
+                        <span v-if="product.availableInventory === cartCount(product.id)" class="status" style="color: red;">All Out!</span>
+                        <span v-else-if="product.availableInventory - cartCount(product.id) < 5" class="status">
+                            Only {{product.availableInventory - cartCount(product.id)}} left!
+                        </span>
+                        <span v-else class="status">Buy now!</span>
+        
                         <button v-on:click="addToCart(product)" v-if="canAddToCart(product)">
                             Add to cart
                         </button>
@@ -81,12 +87,6 @@
                         <button disabled="disabled" v-else>
                             Add to cart
                         </button>
-        
-                        <span v-if="product.availableInventory === cartCount(product.id)" class="status" style="color: red;">All Out!</span>
-                        <span v-else-if="product.availableInventory - cartCount(product.id) < 5" class="status">
-                            Only {{product.availableInventory - cartCount(product.id)}} left!
-                        </span>
-                        <span v-else class="status">Buy now!</span>
     
     
                         
@@ -221,14 +221,24 @@
                     this.errors = { firstName: '', lastName: '', phone: '' }; // Reset errors
                 },
                 sortByField(field, order) {
-                    this.products.sort((a, b) => {
-                        let modifier = order === 'asc' ? 1 : -1;
-                        if (typeof a[field] === 'string') {
-                            return a[field].localeCompare(b[field]) * modifier;
-                        }
-                        return (a[field] - b[field]) * modifier;
-                    });
+                    const modifier = order === 'asc' ? 1 : -1;
+
+                    if (field === 'spacesAvailable') {
+                        this.products.sort((a, b) => {
+                            const spacesA = a.availableInventory - this.cartCount(a.id);
+                            const spacesB = b.availableInventory - this.cartCount(b.id);
+                            return (spacesA - spacesB) * modifier;
+                        });
+                    } else {
+                        this.products.sort((a, b) => {
+                            if (typeof a[field] === 'string') {
+                                return a[field].localeCompare(b[field]) * modifier;
+                            }
+                            return (a[field] - b[field]) * modifier;
+                        });
+                    }
                 }
+
             },
             computed:{//the computed property object
                 cartItemCount(){
