@@ -1,52 +1,52 @@
 let products = [
     {
         "id": 1001,
-        "subject": "Mathematics",
+        "subject": "Chess",
         "description": "fun math class",
         "Location": " London",
         "price": 150,
-        "image":"images/download.png",
-        "availableInventory": 5,
+        "image":"images/chess.png",
+        "availableInventory": 10,
         "rating": 4
     },
     {
         "id": 1002,
-        "subject": "English",
+        "subject": "Piano",
         "description": "Upgrade your english skills",
         "Location": " Austrailia",
         "price": 130,
-        "image":"images/english.png",
-        "availableInventory": 5,
+        "image":"images/piano.png",
+        "availableInventory": 10,
         "rating": 4
     },
     {
         "id": 1003,
-        "subject": "Physics",
+        "subject": "Karate",
         "description": "fun math class",
         "Location": " London",
         "price": 150,
-        "image":"images/Physics.png",
-        "availableInventory": 5,
+        "image":"images/karate.png",
+        "availableInventory": 10,
         "rating": 3
     },
     {
         "id": 1004,
-        "subject": "Chemistry",
+        "subject": "Yoga",
         "description": "fun math class",
         "Location": " California",
         "price": 140,
-        "image":"images/chemistry.png",
-        "availableInventory": 5,
+        "image":"images/yoga.png",
+        "availableInventory": 10,
         "rating": 3
     },
     {
         "id": 1005,
-        "subject": "Biology",
+        "subject": "Table Tennis",
         "description": "fun math class",
         "Location": " Alaska",
         "price": 120,
-        "image":"images/B.png",
-        "availableInventory": 5,
+        "image":"images/tabletennis.png",
+        "availableInventory": 10,
         "rating": 5
     },
     {
@@ -56,7 +56,7 @@ let products = [
         "Location": " Columbia",
         "price": 90,
         "image":"images/art.png",
-        "availableInventory": 5,
+        "availableInventory": 10,
         "rating": 3
     },
     {
@@ -66,7 +66,7 @@ let products = [
         "Location": " Melbourne",
         "price": 100,
         "image":"images/music.png",
-        "availableInventory": 5,
+        "availableInventory": 10,
         "rating": 2
     },
     {
@@ -76,7 +76,7 @@ let products = [
         "Location": " Columbia",
         "price": 90,
         "image":"images/dance.png",
-        "availableInventory": 5,
+        "availableInventory": 10,
         "rating": 5
     },
     {
@@ -86,17 +86,17 @@ let products = [
         "Location": " Dubai",
         "price": 130,
         "image":"images/coding.png",
-        "availableInventory": 5,
+        "availableInventory": 10,
         "rating": 4
     },
     {
         "id": 1010,
-        "subject": "Sports",
+        "subject": "Football",
         "description": "fun math class",
         "Location": " London",
         "price": 100,
-        "image":"images/sports.png",
-        "availableInventory": 5,
+        "image":"images/football.png",
+        "availableInventory": 10,
         "rating": 2
     }
 ]

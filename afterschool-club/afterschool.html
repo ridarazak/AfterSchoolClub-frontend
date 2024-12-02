@@ -61,11 +61,14 @@
                         <h2 v-text="product.subject"></h2>
                         <p v-html="product.Location"></p>
                         <p v-html="product.description"></p>
+                        <p>Space: {{ product.availableInventory - cartCount(product.id) }}</p>
+
             
                         <!-- The double curly brackets is used instead of 'v-text'-->
                         <p>Price: {{product.price}}</p>
                         
                         <div>
+                            <span>Rating:</span>
                             <span v-for="n in product.rating">★</span>
                             <span v-for="n in 5 - product.rating">☆</span>
                         </div>
