@@ -22,17 +22,17 @@
             <h3 style="display: inline-block;" id="searchbox">Search:</h3>
             <input type="text" v-model="searchQuery" placeholder="Search by subject or location" />
 
-            <button v-on:click="showCheckout" id="checkbutton">
+            <button v-on:click="showCheckout" id="checkbutton" :disabled="cartItemCount === 0">
                 {{cartItemCount}}
                 <!--add the cart icon-->
                 <span class="fa-solid fa-cart-arrow-down"></span> Checkout
             </button>
         </header>
-        <div>
+        <div v-if="!isCheckoutPage">
             <h3 style="color: beige;">Sort Options</h3>
             
             <label for="sortField" id="sort">Sort By:</label>
-            <select id="sortField" v-model="selectedField">
+            <select id="sortField" v-model="selectedField" @change="sortByField">
                 <option value="price">Price</option>
                 <option value="subject">Subject</option>
                 <option value="Location">Location</option>
@@ -40,13 +40,17 @@
                 <option value="rating">Rating</option>
             </select>
             
+
             <label for="sortOrder" id="sort">Order:</label>
-            <select id="sortOrder" v-model="selectedOrder">
-                <option value="asc">Ascending</option>
-                <option value="desc">Descending</option>
-            </select>
+            <label id="sort">
+                <input type="radio" value="asc" v-model="selectedOrder" @change="sortByField">
+                Ascending
+            </label>
+            <label id="sort">
+                <input type="radio" value="desc" v-model="selectedOrder" @change="sortByField">
+                Descending
+            </label>
             
-            <button v-on:click="sortByField(selectedField, selectedOrder)">Sort</button>
 
         </div>
         
@@ -139,7 +143,7 @@
                 <p>Last Name: {{order.lastName}}</p>
                 <p>Phone Number: {{order.phone}}</p>
 
-                <button v-on:click="submitForm">Place Order</button>
+                <button v-on:click="submitForm" :disabled="!isFormValid">Checkout</button>
             </div>
 
 
@@ -159,6 +163,7 @@
                 },
                 sitename: 'After School Club',
                 products: products,
+                isCheckoutPage: false,
                 cart:[], //array to store items in shopping cart
                 selectedField: 'price', // default sort field
                 selectedOrder: 'asc',    // default sort order
@@ -173,8 +178,12 @@
                 addToCart(product){
                     this.cart.push(product.id)
                 },
-                showCheckout(){
-                    this.showProduct = this.showProduct ? false : true;
+                // showCheckout(){
+                //     this.showProduct = this.showProduct ? false : true;
+                // },
+                showCheckout() {
+                    this.isCheckoutPage = !this.isCheckoutPage;  // Toggle between product and checkout pages
+                    this.showProduct = !this.isCheckoutPage;  // Show/hide product list
                 },
                 canAddToCart(product){
                     return product.availableInventory > this.cartCount(product.id);
@@ -220,24 +229,27 @@
                     this.order.phone = '';
                     this.errors = { firstName: '', lastName: '', phone: '' }; // Reset errors
                 },
-                sortByField(field, order) {
-                    const modifier = order === 'asc' ? 1 : -1;
+                sortByField() {
+                    this.products.sort((a, b) => {
+                        let modifier = this.selectedOrder === 'asc' ? 1 : -1;
 
-                    if (field === 'spacesAvailable') {
-                        this.products.sort((a, b) => {
-                            const spacesA = a.availableInventory - this.cartCount(a.id);
-                            const spacesB = b.availableInventory - this.cartCount(b.id);
-                            return (spacesA - spacesB) * modifier;
-                        });
-                    } else {
-                        this.products.sort((a, b) => {
-                            if (typeof a[field] === 'string') {
-                                return a[field].localeCompare(b[field]) * modifier;
-                            }
-                            return (a[field] - b[field]) * modifier;
-                        });
-                    }
+                        if (this.selectedField === 'spacesAvailable') {
+                            // Dynamic sorting for available spaces
+                            let aSpaces = a.availableInventory - this.cartCount(a.id);
+                            let bSpaces = b.availableInventory - this.cartCount(b.id);
+                            return (aSpaces - bSpaces) * modifier;
+                        } 
+                        
+                        if (typeof a[this.selectedField] === 'string') {
+                            // Sorting for string fields (subject, location)
+                            return a[this.selectedField].localeCompare(b[this.selectedField]) * modifier;
+                        }
+
+                        // Sorting for numeric fields (price, rating, etc.)
+                        return (a[this.selectedField] - b[this.selectedField]) * modifier;
+                    });
                 }
+
 
             },
             computed:{//the computed property object
@@ -248,6 +260,16 @@
                     return this.cart.map(id => {
                         return this.products.find(product => product.id === id);
                     }).filter(product => product); // Filter out any undefined values
+                },
+                isFormValid() {
+                    return (
+                        this.order.firstName &&
+                        this.order.lastName &&
+                        this.order.phone &&
+                        !this.errors.firstName &&
+                        !this.errors.lastName &&
+                        !this.errors.phone
+                    );
                 },
                 filteredProducts() {
                     return this.products.filter(product => {
