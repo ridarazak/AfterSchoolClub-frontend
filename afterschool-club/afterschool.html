@@ -276,7 +276,33 @@
                 },
 
 
+                updateProductInventory(productId, newInventory) {
+                    const updates = { availableInventory: newInventory };
 
+                    fetch(`http://localhost:3000/products/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updates)
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                console.log(`Product inventory updated successfully! Updated Count: ${data.updatedCount}`);
+                            } else {
+                                console.error('Failed to update product inventory.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error updating product inventory:', error);
+                        });
+                },
                 
                 resetForm() {
                     this.order.firstName = '';
@@ -307,6 +333,11 @@
 
 
             },
+            
+            mounted() {
+                this.fetchProducts();
+            },
+
             computed:{//the computed property object
                 cartItemCount(){
                     return this.cart.length;
