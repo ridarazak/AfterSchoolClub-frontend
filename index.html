@@ -6,7 +6,6 @@
     <title>After School Club</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <!--Load Vue.js from a server (so no local file is needed)-->
-    <script src="products.js"></script>
     <link rel="stylesheet" href="CSS.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
@@ -60,7 +59,7 @@
                     <div v-for="product in filteredProducts" class="product">
                         <figure>
                             <!-- bind 'src' attr to 'product.image' in 'data'-->
-                            <img v-bind:src="product.image">
+                            <img v-bind:src="'https://after-school-club-backend.onrender.com/' + product.image">
                         </figure>
                         <h2 v-text="product.subject"></h2>
                         <p>Location: {{ product.Location }}</p>
