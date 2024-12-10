@@ -237,6 +237,46 @@
                     }
                 },
 
+                submitOrder() {
+                    const orderDetails = {
+                        firstName: this.order.firstName,
+                        lastName: this.order.lastName,
+                        phone: this.order.phone,
+                        cart: this.cart
+                    };
+
+                    fetch('http://localhost:3000/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(orderDetails)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(`Order submitted successfully! Order ID: ${data.orderId}`);
+                                
+                                // Update inventory for each product in the cart
+                                this.cart.forEach(productId => {
+                                    const product = this.products.find(p => p.id === productId);
+                                    if (product) {
+                                        const newInventory = product.availableInventory - 1;
+                                        this.updateProductInventory(productId, newInventory);
+                                    }
+                                });
+
+                                this.cart = []; // Clear the cart
+                                this.resetForm(); // Reset the order form
+                            } else {
+                                alert('Failed to submit the order. Please try again.');
+                            }
+                        })
+                        .catch(error => console.error('Error submitting order:', error));
+                },
+
+
+
                 
                 resetForm() {
                     this.order.firstName = '';
