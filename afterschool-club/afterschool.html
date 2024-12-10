@@ -176,7 +176,7 @@
             },
             methods:{
                 fetchProducts() {
-                    fetch('http://localhost:3000/products')
+                    fetch('https://after-school-club-backend.onrender.com/products')
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -233,7 +233,7 @@
                         cart: this.cart
                     };
 
-                    fetch('http://localhost:3000/orders', {
+                    fetch('https://after-school-club-backend.onrender.com/orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -267,7 +267,7 @@
                 updateProductInventory(productId, newInventory) {
                     const updates = { availableInventory: newInventory };
 
-                    fetch(`http://localhost:3000/products/${productId}`, {
+                    fetch(`https://after-school-club-backend.onrender.com/products/${productId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
@@ -321,7 +321,7 @@
 
                 fetchSearchResults() {
                     // Fetch search results from the backend when searchQuery changes
-                    fetch(`http://localhost:3000/search?query=${this.searchQuery}`)
+                    fetch(`https://after-school-club-backend.onrender.com/search?query=${this.searchQuery}`)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP error! Status: ${response.status}`);
