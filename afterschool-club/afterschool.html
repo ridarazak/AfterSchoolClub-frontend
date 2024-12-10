@@ -20,7 +20,7 @@
             </div>
 
             <h3 style="display: inline-block;" id="searchbox">Search:</h3>
-            <input type="text" v-model="searchQuery" placeholder="Search by subject or location" />
+            <input type="text" v-model="searchQuery" placeholder="Search by subject, location, price, etc." />
 
             <button v-on:click="showCheckout" id="checkbutton" :disabled="cartItemCount === 0">
                 {{cartItemCount}}
@@ -224,18 +224,6 @@
                     const phoneRegex = /^[0-9]*$/; // Only numbers
                     this.errors.phone = phoneRegex.test(value) ? '' : 'Phone number must contain digits only.';
                 },
-                submitForm() {
-                    this.validateName('firstName');
-                    this.validateName('lastName');
-                    this.validatePhone();
-                    
-                    if (!this.errors.firstName && !this.errors.lastName && !this.errors.phone) {
-                        alert('Order Submitted!');
-                        this.resetForm();
-                    } else {
-                        alert('Please fix the errors before submitting.');
-                    }
-                },
 
                 submitOrder() {
                     const orderDetails = {
@@ -329,11 +317,38 @@
                         // Sorting for numeric fields (price, rating, etc.)
                         return (a[this.selectedField] - b[this.selectedField]) * modifier;
                     });
+                },
+
+                fetchSearchResults() {
+                    // Fetch search results from the backend when searchQuery changes
+                    fetch(`http://localhost:3000/search?query=${this.searchQuery}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            this.products = data; // Update the products with search results
+                        })
+                        .catch(error => {
+                            console.error('Error fetching search results:', error);
+                        });
                 }
 
 
             },
-            
+            watch: {
+                // Watch the searchQuery and call fetchSearchResults when it changes
+                searchQuery: function() {
+                    if (this.searchQuery.trim() === '') {
+                        this.fetchProducts();  // If searchQuery is empty, fetch all products
+                    } else {
+                        this.fetchSearchResults();  // Otherwise, fetch the filtered products
+                    }
+                }
+            },
+
             mounted() {
                 this.fetchProducts();
             },
